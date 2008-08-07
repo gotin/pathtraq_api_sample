@@ -18,7 +18,6 @@ var action_map = {
   "S-p":{action:"next", title:"previous web pages"}
 };
 
-var ID = +new Date;
 var container = null;
 
 for(var phrase in action_map){
@@ -49,7 +48,7 @@ function view(action_title, data){
   var link = data.link;
   var items = data.items;
   if(!items||!items.length){no_data();return; }
-  var div = $add($div({id:ID+action_title}),
+  var div = $add($div({}),
                  $add($div({},{backgroundColor:"#FFF", margin:"2px", padding:"2px", color:"#000"}),
                       $a({textContent:title, href:link},{color:"#009"}),
                       $text("("+items.length+")")));
@@ -164,7 +163,7 @@ function loadStart(title){
   $add(document.body, container);
 
   container.style.display = "block";
-  var div = $div({id:ID + title, textContent:title + " posting..."});
+  var div = $div({textContent:title + " posting..."});
   $add(container,
        $add(div,
             $img({src:loadImg})));
