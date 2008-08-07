@@ -167,6 +167,5 @@ function loadStart(title){
   $add(container,
        $add(div,
             $img({src:loadImg})));
-  console.log("hoge");
   return div;
 }
