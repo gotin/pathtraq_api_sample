@@ -2,7 +2,7 @@
 // @name           pathtraq_sample
 // @namespace      http://gomaxfire.dnsdojo.com/
 // @require        http://jqueryjs.googlecode.com/files/jquery-1.2.6.js
-// @require        http://flot.googlecode.com/files/jquery.flot-0.1.pack.js
+// @require        http://flot.googlecode.com/svn/trunk/jquery.flot.js
 // @require        http://github.com/gotin/chain/tree/master%2Fchain.js?raw=true
 // @require        http://github.com/gotin/gm_utils/tree/master%2Futil.js?raw=true
 // @description    simple sample of pathtraq api
@@ -11,7 +11,7 @@
 
 var urls = {};
 "basic next prev".split(" ").forEach(function(type){urls[type] = pathtraq_url(type);});
-urls.chart = "http://api.pathtraq.com/page_chart&url=" + document.location.href;
+urls.chart = "http://api.pathtraq.com/page_chart?scale=3m&api=json&url=" + document.location.href;
 
 var actions = make_actions(urls);
 
@@ -49,17 +49,36 @@ function chart(data){
   var graph = [];
   var plots = data.plots;
   var step = data.step;
-  for(var i=0,l=plots.length;i<l;i++){
-    graph.push([i*step,plots[i]]);
+  try{
+    var start = new Date(data.start).getTime();
+    for(var i=0,l=plots.length;i<l;i++){
+      graph.push([start + i*step*60*60*1000,plots[i]]);
+    }
+  }catch(e){
+    //console.log(e);
   }
-  var div = $div();
-  $.plot($(div),[graph]);
+  var div = $div({},{width:"400px",height:"300px"});
   $add(container, div);
+
+  $C($C.wait())
+  (
+    function(){
+      //console.log(uneval(graph));
+      try{
+//        $.plot($(div), [{data:graph,xaxis:{mode:"time", timeformat:"%m/%d"}, label:"access", lines:{show:true}}]);
+        $.plot($(div), [graph], {xaxis:{minTickSize:[1,"day"],mode:"time", timeformat:"%m/%d"}, label:"access", lines:{show:true}});
+      }catch(e){
+        //console.log(e);
+      }
+    }
+  )
+  ();
+
 }
 
 
 function view(action_title, data){
-  if(action_title=="chart") return chart(data);
+  if(action_title=="access chart") return chart(data);
   if(!data) {no_data(); return; }
   var title = data.title;
   var link = data.link;
