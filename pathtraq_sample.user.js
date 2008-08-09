@@ -2,6 +2,7 @@
 // @name           pathtraq_sample
 // @namespace      http://gomaxfire.dnsdojo.com/
 // @require        http://jqueryjs.googlecode.com/files/jquery-1.2.6.js
+// @require        http://flot.googlecode.com/files/jquery.flot-0.1.pack.js
 // @require        http://github.com/gotin/chain/tree/master%2Fchain.js?raw=true
 // @require        http://github.com/gotin/gm_utils/tree/master%2Futil.js?raw=true
 // @description    simple sample of pathtraq api
@@ -10,12 +11,15 @@
 
 var urls = {};
 "basic next prev".split(" ").forEach(function(type){urls[type] = pathtraq_url(type);});
+urls.chart = "http://api.pathtraq.com/page_chart&url=" + document.location.href;
+
 var actions = make_actions(urls);
 
 var action_map = {
   "S-n":{action:"prev", title:"after web pages"},
   "S-enter":{action:"basic",title:"popular pages in this site"},
-  "S-p":{action:"next", title:"previous web pages"}
+  "S-p":{action:"next", title:"previous web pages"},
+  "S-c":{action:"chart", title:"access chart"}
 };
 
 var container = null;
@@ -41,8 +45,21 @@ Keybind.add("S-escape",
 
             });
 
+function chart(data){
+  var graph = [];
+  var plots = data.plots;
+  var step = data.step;
+  for(var i=0,l=plots.length;i<l;i++){
+    graph.push([i*step,plots[i]]);
+  }
+  var div = $div();
+  $.plot($(div),[graph]);
+  $add(container, div);
+}
+
 
 function view(action_title, data){
+  if(action_title=="chart") return chart(data);
   if(!data) {no_data(); return; }
   var title = data.title;
   var link = data.link;
@@ -103,7 +120,6 @@ function pathtraq_url(type){
 
 function check(url, title, func){
   var container = loadStart(title);
-
   $C.xhr_json(url)(function(data){$rm(container);return data;})(func)();
 }
 
