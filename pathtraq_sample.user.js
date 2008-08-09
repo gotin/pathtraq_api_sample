@@ -49,32 +49,36 @@ function chart(data){
   var graph = [];
   var plots = data.plots;
   var step = data.step;
-  try{
-    var start = new Date(data.start).getTime();
-    for(var i=0,l=plots.length;i<l;i++){
-      graph.push([start + i*step*60*60*1000,plots[i]]);
-    }
-  }catch(e){
-    //console.log(e);
+  var start = new Date(data.start).getTime();
+  for(var i=0,l=plots.length;i<l;i++){
+    graph.push([start + i*step*60*60*1000,plots[i]]);
   }
-  var div = $div({},{width:"400px",height:"300px"});
-  $add(container, div);
+  GM_addStyle(".tickLabel{color:#FFF}");
+  var graph_div = $div({},{width:"400px",height:"300px"},{color:"#FFF"});
+  var div = $div({textContent:"3 months access chart of this page"},{backgroundColor:"#FFF", margin:"2px", padding:"2px", color:"#000"});
+
+  $add(container, div, graph_div);
 
   $C($C.wait())
   (
     function(){
-      //console.log(uneval(graph));
       try{
-//        $.plot($(div), [{data:graph,xaxis:{mode:"time", timeformat:"%m/%d"}, label:"access", lines:{show:true}}]);
-        $.plot($(div), [graph], {xaxis:{minTickSize:[1,"day"],mode:"time", timeformat:"%m/%d"}, label:"access", lines:{show:true}});
+        $.plot($(graph_div), [graph],
+               {
+                 xaxis:{tickSize:[10,"day"],
+                        minTickSize:[10,"day"],
+                        mode:"time",
+                        timeformat:"%m/%d"},
+                 lines:{show:true}
+               });
       }catch(e){
-        //console.log(e);
       }
     }
   )
   ();
 
 }
+
 
 
 function view(action_title, data){
